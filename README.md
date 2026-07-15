@@ -6,7 +6,6 @@
 
 项目地址：https://github.com/zhang-meng66/resume-analyzer
 
-线上演示：https://zhang-meng66-resume-analyzer.streamlit.app
 
 
 ## 项目简介
