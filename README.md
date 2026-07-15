@@ -1,26 +1,28 @@
 # AI 赋能的智能简历分析系统
 
-基于 FastAPI + Streamlit 的智能简历解析与岗位匹配平台，支持 PDF 简历上传、关键信息自动提取（姓名、电话、邮箱、学历、技能、项目经历等）、岗位匹配度评分，并内置缓存机制避免重复解析。
+基于 FastAPI + 纯静态前端的智能简历解析与岗位匹配平台，支持 PDF 简历上传、关键信息自动提取（姓名、电话、邮箱、学历、技能、项目经历等 10+ 字段）、岗位匹配度评分，内置内存缓存机制。
 
-项目地址：https://github.com/zhang-meng66/resume-analyzer
+**GitHub 仓库**：https://github.com/zhang-meng66/resume-analyzer
+
+**线上前端演示**：https://zhang-meng66.github.io/resume-analyzer/
 
 
 ## 项目简介
 
 这是一个面向招聘场景的智能简历分析工具。用户上传 PDF 格式的简历后，系统自动提取姓名、电话、邮箱、学历、技能关键词、项目经历等核心信息，并根据岗位描述计算简历与岗位的匹配度评分，帮助招聘者快速筛选候选人。
 
-核心功能包括：PDF简历上传与全文解析、关键信息自动提取（10+字段）、岗位匹配度评分（0-100分，含多维度拆解）、结构化JSON输出、内存缓存机制、Web交互界面。
+核心功能包括：PDF简历上传与全文解析、关键信息自动提取（10+字段）、岗位匹配度评分（0-100分，含五维度拆解）、结构化JSON输出、内存缓存机制、纯静态前端（GitHub Pages部署）。
 
 
 ## 技术栈
 
-后端：FastAPI + Uvicorn + pdfplumber + 正则表达式
+**后端**：FastAPI + Uvicorn + pdfplumber
 
-前端：Streamlit
+**前端**：纯 HTML + CSS + JavaScript（静态页面，部署在 GitHub Pages）
 
-缓存：内存字典（可无缝切换 Redis）
+**缓存**：内存字典（可无缝切换 Redis）
 
-部署：Docker / Streamlit Cloud
+**部署**：前端 GitHub Pages，后端本地运行/云服务器
 
 
 ## 快速启动
@@ -35,7 +37,7 @@ cd resume-analyzer
 ### 2. 安装依赖
 
 ```bash
-pip install fastapi uvicorn pdfplumber python-multipart pydantic python-dotenv streamlit requests
+pip install fastapi uvicorn pdfplumber python-multipart pydantic python-dotenv
 ```
 
 ### 3. 启动后端
@@ -47,50 +49,50 @@ uvicorn main:app --reload
 
 后端服务默认运行在：http://localhost:8000
 
-API 文档自动生成：http://localhost:8000/docs
+API 文档：http://localhost:8000/docs
 
-### 4. 启动前端（新开终端）
+### 4. 访问前端
 
-```bash
-streamlit run frontend/app.py
-```
+**方式一（本地测试）**：直接用浏览器打开 `frontend/index.html`
 
-前端页面默认运行在：http://localhost:8501
+**方式二（线上访问）**：https://zhang-meng66.github.io/resume-analyzer/
 
-### 5. Docker 部署（可选）
+⚠️ 注意：前端页面需要后端服务运行中才能正常使用。线上部署的前端默认连接 `http://localhost:8000`，如需连接其他后端地址，请修改 `index.html` 中的 `API_BASE` 变量。
 
-```bash
-docker build -t resume-analyzer .
-docker run -p 8000:8000 resume-analyzer
-```
+
+## 线上演示说明
+
+前端页面已部署至 GitHub Pages：https://zhang-meng66.github.io/resume-analyzer/
+
+**使用前提**：后端服务必须在运行状态。如果后端部署在云服务器，需修改 `index.html` 中 `API_BASE` 的地址；如果后端在本地，可通过内网穿透（如 ngrok）生成公网地址供线上页面调用。
 
 
 ## API 接口
 
 ### GET /health
-健康检查，返回服务状态。
+健康检查。
 
 ### POST /parse
 上传 PDF 简历，返回解析结果。
 
 请求参数：file（PDF文件）
 
-响应字段：success、data（含 name/phone/email/address/job_intention/salary/work_years/education/projects/skills/raw_text）、from_cache（是否命中缓存）
+响应字段：success、data（含 name/phone/email/address/job_intention/salary/work_years/education/projects/skills/raw_text）、from_cache
 
 ### POST /match
 上传简历并输入岗位描述，返回匹配度评分。
 
 请求参数：file（PDF文件）、job_description（表单文本）
 
-响应字段：success、data（含 resume 解析结果和 match 评分详情）、from_cache
+响应字段：success、data（含 resume 和 match）、from_cache
 
-其中 match 包含：score（最终得分0-100）、skill_match_score、experience_score、education_score、project_score、ai_bonus_score、matched_skills、jd_keywords、details
+match 包含：score、skill_match_score、experience_score、education_score、project_score、ai_bonus_score、matched_skills、jd_keywords、details
 
 ### GET /cache/status
-查看缓存状态（缓存条目数/最大容量）。
+查看缓存状态。
 
 ### GET /cache/clear
-清空缓存（管理接口）。
+清空缓存。
 
 
 ## 项目结构
@@ -99,14 +101,15 @@ docker run -p 8000:8000 resume-analyzer
 resume-analyzer/
 ├── backend/
 │   ├── main.py              # FastAPI 主入口
-│   ├── resume_parser.py     # PDF 解析 + 信息提取（10+字段）
-│   ├── resume_scorer.py     # 匹配度评分（多维度 + AI模拟加分）
+│   ├── resume_parser.py     # PDF 解析 + 10+ 字段提取
+│   ├── resume_scorer.py     # 五维度匹配度评分
 │   ├── requirements.txt     # Python 依赖
-│   └── Dockerfile           # 容器化部署配置
+│   └── Dockerfile           # 容器化部署
 ├── frontend/
-│   └── app.py               # Streamlit 前端界面
-├── README.md                # 项目文档
-└── .env.example             # 环境变量示例
+│   ├── index.html           # 纯静态前端（GitHub Pages 部署）
+│   └── app.py               # Streamlit 版本（备用）
+├── README.md
+└── .env.example
 ```
 
 
@@ -114,15 +117,13 @@ resume-analyzer/
 
 ### 简历解析策略
 
-简历解析采用规则优先策略：
-- 姓名：匹配"姓名："模式或取文本前几行
+采用规则优先策略：
+- 姓名：匹配 "姓名：" 模式或取文本前几行
 - 电话/邮箱：正则精确匹配
-- 技能：基于 50+ 预定义技能词库进行关键词匹配
-- 学历：基于关键词（本科/硕士/博士/大学等）匹配所在行
+- 技能：基于 50+ 预定义技能词库匹配
+- 学历：关键词（本科/硕士/博士/大学等）匹配所在行
 - 项目经历：定位"项目经历"章节，按日期或标题分组提取，自动过滤获奖/奖学金信息
 - 求职意向/期望薪资/工作年限/地址：正则匹配对应标签
-
-这套方案在保证速度的同时能覆盖大部分常见简历格式。
 
 ### 匹配度评分逻辑
 
@@ -133,31 +134,18 @@ resume-analyzer/
 4. 项目经验质量（10分）：项目数量 + 技术栈丰富度
 5. AI模拟加分（5分）：基于文本长度和技能数量的质量评估
 
-最终得分上限100分，评分逻辑透明可解释，不依赖外部API。
-
 ### 缓存机制
 
-使用内存字典实现 LRU 风格缓存，容量上限50条。缓存 key 基于文件内容哈希 + 岗位描述哈希生成，命中缓存时响应头标记 from_cache=true。可通过 /cache/status 和 /cache/clear 接口管理缓存，生产环境可无缝切换至 Redis。
-
-
-## 线上演示
-
-前端页面已部署至 Streamlit Cloud：
-
-🔗 https://zhang-meng66-resume-analyzer.streamlit.app
-
-⚠️ 注意：该应用需要浏览器启用 JavaScript 才能运行。如无法访问，请检查网络环境或尝试更换浏览器。也可在本地启动后端后，将前端配置指向本地地址进行体验。
+内存字典实现 LRU 风格缓存，容量上限 50 条。缓存 key 基于文件内容哈希 + 岗位描述哈希生成，命中缓存时返回 `from_cache=true`。
 
 
 ## 环境变量
 
-在 Streamlit Cloud 部署时，需要在 `.streamlit/secrets.toml` 中配置：
+部署时如需修改后端地址，编辑 `frontend/index.html` 第 180 行：
 
-```toml
-API_URL = "http://localhost:8000"
+```javascript
+const API_BASE = 'http://localhost:8000';  // 改成实际后端地址
 ```
-
-或直接在 frontend/app.py 中修改 API_BASE_URL 变量。
 
 
 ## 作者
