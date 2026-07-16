@@ -95,7 +95,6 @@ with tab1:
                                                 st.write(proj)
                                 else:
                                     st.write("未识别到项目经历")
-
                                 st.download_button(
                                     "📥 导出 JSON",
                                     data=json.dumps(data, ensure_ascii=False, indent=2),

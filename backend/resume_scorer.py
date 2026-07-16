@@ -76,7 +76,6 @@ def calculate_match_score(resume_data: Dict, jd_text: str) -> Dict:
     matched_skills = []
     weighted_total = 0
     weighted_match = 0
-
     for kw in jd_keywords:
         weight = SKILL_WEIGHT.get(kw, 1.0)
         weighted_total += weight

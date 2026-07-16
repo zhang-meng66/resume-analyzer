@@ -191,7 +191,6 @@ def extract_projects(text: str) -> List[str]:
     """提取项目经历 - 过滤掉获奖/奖学金信息"""
     projects = []
     lines = text.split('\n')
-
     # 获奖关键词（用于过滤）
     award_keywords = [
         '哈尔滨理工大学', '奖学金', '一等奖', '二等奖', '三等奖', '程序设计', '竞赛', '挑战杯',
